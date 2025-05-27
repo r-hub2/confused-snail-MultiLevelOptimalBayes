@@ -1576,7 +1576,7 @@ estimate_Bay_CV <-
   
   if (!all(is.finite(c(Tau02_min, Tau02_max)))) {
     stop(sprintf(
-      "DEBUG: K_sum1=%s, T_sum1=%s, radius=%s, Tau02_min=%s, Tau02_max=%s",
+      "DEBUG: K_sum1=%s, T_sum1=%s, Tau02_min=%s, Tau02_max=%s, tau_x2=%s",
       K_sum1, T_sum1, Tau02_min, Tau02_max, tau_x2
     ))
   }
