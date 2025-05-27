@@ -31,4 +31,4 @@ Suggests: knitr, rmarkdown, testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2025-05-27 22:36:47 UTC; valerii.dashuk
+Packaged: 2025-05-27 23:02:19 UTC; valerii.dashuk

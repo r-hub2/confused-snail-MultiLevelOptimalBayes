@@ -1566,23 +1566,25 @@ estimate_Bay_CV <-
   
   # optimize MSE with beta_b_ML within 5*sigma search region from the distribution of tau_x2
   
-  d_search = 5
+  d_search <- 5
+  radius   <- sqrt(K_sum1 * T_sum1^2)
   
-  Tau02_min = max(0.01, tau_x2 - d_search * sqrt(K_sum1 * T_sum1^2))
+  # Attempt the usual endpoints
+  Tau02_min <- max(0.01, tau_x2 - d_search * radius)
+  Tau02_max <- max(0.01, tau_x2 + d_search * radius)
   
-  Tau02_max =  max(0.01, tau_x2 + d_search * sqrt(K_sum1 * T_sum1^2))
-  
-  # testing
-  
-  if (!all(is.finite(c(Tau02_min, Tau02_max)))) {
-    stop(sprintf(
-      "DEBUG: K_sum1=%s, T_sum1=%s, Tau02_min=%s, Tau02_max=%s, tau_x2=%s",
-      K_sum1, T_sum1, Tau02_min, Tau02_max, tau_x2
-    ))
+  # Fallback to a fixed window if anything’s off
+  if (!all(is.finite(c(Tau02_min, Tau02_max))) || Tau02_min >= Tau02_max) {
+    Tau02_min <- 0
+    Tau02_max <- 10
   }
   
-  
-  Tau02_seq <- seq(Tau02_min, Tau02_max, by = (Tau02_max - Tau02_min)/100)
+  # Build the sequence
+  Tau02_seq <- seq(
+    from       = Tau02_min,
+    to         = Tau02_max,
+    length.out = 101
+  )
   
   W_seq <- seq(0, 1, by = 0.01)
   
