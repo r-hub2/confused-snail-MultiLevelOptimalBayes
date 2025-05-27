@@ -1,0 +1,163 @@
+---
+title: "Introduction to MultiLevelOptimalBayes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{MultiLevelOptimalBayes-Intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(MultiLevelOptimalBayes)
+```
+
+# Overview
+
+**MultiLevelOptimalBayes (MLOB)** is designed for estimating two-level latent variable models, particularly in small sample settings. This is especially useful in psychology, education, and other fields with hierarchical or nested data structures. We present the R package MultiLevelOptimalBayes (MLOB) for estimating between-group effects in multilevel latent variable models. MLOB employs a regularised Bayesian estimator devised by Dashuk, Hecht, Lüdtke, Robitzsch, and Zitzmann (2024), which was subsequently enhanced for additional covariates by the same authors in 2025. This estimator chooses prior parameters to minimise the mean squared error (MSE) of the between-group effect by effectively balancing bias and variance. The regularised Bayesian estimator provides MSE-optimal estimations due to the mean-variance tradeoff, especially in scenarios of small sample sizes and poor intraclass correlation (ICC).
+The MLOB software supports imbalanced group sizes through integrated data-balancing methods and offers comprehensive inference, including point estimates, standard errors, p-values, and confidence intervals for both primary regressors and covariates. To gain comprehensive understanding, we initially examine the theoretical underpinnings of the regularised Bayesian estimator (Dashuk et al. 2024, 2025), followed by a discussion of its implementation in MLOB, namely the core function mlob(). We illustrate the application of mlob() using real datasets. Consequently, we provide researchers in psychology, education, and related disciplines a robust, user-friendly instrument for dependable multilevel latent variable estimation, particularly in contexts characterised by small sample sizes and low ICCs.
+
+The core function `mlob()` estimates the between-group coefficient (`beta_b`) using a regularized Bayesian approach, and applies a data balancing procedure if the groups are unbalanced.
+
+## Key Features
+
+- ✅ Suitable for small-sample, multilevel data
+- ✅ Performs regularized Bayesian estimation
+- ✅ Automatically balances data if necessary
+- ✅ Optional jackknife resampling for standard errors
+- ✅ Provides comparison with unregularized ML estimates
+
+# Function Usage
+
+```{r eval = FALSE}
+mlob(
+  formula,
+  data,
+  group,
+  balancing.limit = 0.2,
+  conf.level = 0.95,
+  jackknife = FALSE,
+  punish.coeff = 2,
+  ...
+)
+```
+
+**Arguments:**
+
+- `formula`: A formula (e.g., `Y ~ X + C`) where Y is the outcome, X is the context variable of interest, and C represents covariates.
+- `data`: A data.frame containing all variables in the formula and the grouping variable.
+- `group`: A string naming the grouping variable.
+- `balancing.limit`: Proportion (0–1) of the dataset that can be removed to balance group sizes. Default is 0.2.
+- `conf.level`: Confidence level for confidence intervals. Default is 0.95 (95% CI).
+- `jackknife`: Logical. If TRUE, standard errors and CIs are computed via jackknife resampling. Default is FALSE.
+- `punish.coeff`: Multiplier for penalizing removal of entire groups during balancing. Higher values discourage full-group deletions.
+
+ **Balancing Procedure:**
+The mlob() function also verifies whether the data is balanced, that is each group consist of
+exactly the same number of individuals. If the data is unbalanced, the balancing procedure
+comes into effect and identifies the optimal number of individuals and groups to delete based
+on the punishment coefficient. If the amount of data to be deleted is more than the threshold
+(balancing.limit), the regularized Bayesian estimator is not calculated and mlob() produces
+an error. This forces the user to increase the balancing limit manually and warns that the
+results should be interpreted with caution.
+# Examples
+
+## Example 1: Iris Dataset
+
+```{r eval= FALSE}
+result_iris <- mlob(
+  Sepal.Length ~ Sepal.Width + Petal.Length,
+  data = iris,
+  group = "Species",
+  conf.level = 0.99,
+  jackknife = FALSE
+)
+
+summary(result_iris)
+```
+
+## Example 2: Slightly Unbalanced ChickWeight Dataset
+
+```{r eval= FALSE}
+result_chick <- mlob(
+  weight ~ Diet,
+  data = ChickWeight,
+  group = "Time",
+  punish.coeff = 1.5,
+  jackknife = FALSE
+)
+
+print(result_chick)
+summary(result_chick)
+```
+
+** Interperation of the results for Chickenweight Dataset **
+
+Estimated beta_b and additional covariates effects, denoted as gamma_Diet3 and gamma_Diet4, are included in the end result table. We did not incorporate any additional covariates into the mlob() formula. However, due to the fact that Diet is a four-level factor, mlob() considers Diet 1 to be the primary regressor (X), excludes Diet 2 from the design matrix to prevent multicollinearity, and reports the remaining levels as gamma_Diet3 and gamma_Diet4, using Diet 2 as the reference.
+The results of the estimation indicate a substantial distinction between the regularised Bayesian estimator (first table) and the ML estimator (second table). Beta_b's regularised Bayesian estimator is 5.108, with a statistically significant p-value of 0.0139. This implies that the average weight of chicks on Diet 1 is approximately 5g more than that of chicks on Diet 2 at each time point. In contrast, the ML estimate of the between-group effect beta_b is significantly larger (13.993) but not statistically significant (p value of 0.3910), demonstrating how standard ML can overstate the group-level effect when data is scarce. The positive estimate of gamma_Diet3 is 41.69 and is highly significant for both estimators (p = 0.0048 in MultiLevelOptimalBayes (MLOB)). This suggests that chicks on Diet 3 have a significant increase in weight in comparison to the baseline group. Gamma_Diet4 has an estimate of 29.64, but its p-value of 0.0504 is marginally significant at the 5% level. This implies that Diet 4 has a positive impact on weight; however, the magnitude of this effect is less significant than that of Diet 3.
+
+## Example 3: Highly Unbalanced mtcars Dataset
+
+```{r eval= FALSE}
+result_mtcars <- mlob(
+  mpg ~ hp + wt + am + hp:wt + hp:am,
+  data = mtcars,
+  group = "cyl",
+  balancing.limit = 0.35
+)
+
+summary(result_mtcars)
+```
+
+# Output
+
+The output is an object of class `mlob_result`, which contains:
+
+- Estimated coefficients (`beta_b` and gamma values)
+- Standard errors and confidence intervals
+- Unregularized ML estimates for comparison
+- Information about the data balancing procedure (if used)
+
+# Limitations
+
+While `MultiLevelOptimalBayes` provides a robust solution for regularized estimation in two-level models, users should be aware of the following limitations:
+
+- **Local Grid Search**:  
+  The optimization is restricted to a local 5σ region around the ML estimate. Although this region captures the true MSE minimum with high probability (≥ 0.999 for J = 5), it does not guarantee identification of the global minimum.
+
+- **Assumption of Equal Group Sizes**:  
+  The estimator assumes equal group sizes to simplify the model. While averaging group sizes is a proposed solution, the method does not yet handle unbalanced group sizes natively, but find the optimal reduction to the balanced size.
+
+- **Jackknife Computational Cost**:  
+  Jackknife resampling improves interval coverage in small samples. Note that it may be computationally demanding for larger samples.
+
+- **Limited Model Scope**:  
+  Currently, MLOB only handles two-level models with continuous outcomes. Extensions to support generalized linear mixed models, three- and more-level structures, or multivariate outcomes are not yet available.
+
+
+# References
+
+Dashuk, V., Hecht, M., Luedtke, O., Robitzsch, A., & Zitzmann, S. (2024).  
+An Optimally Regularized Estimator of Multilevel Latent Variable Models, with Improved MSE Performance.  
+[https://doi.org/10.13140/RG.2.2.18148.39048](https://doi.org/10.13140/RG.2.2.18148.39048)  
+
+Luedtke, O., Marsh, H. W., Robitzsch, A., et al. (2008).  
+The multilevel latent covariate model: A new, more reliable approach to group-level effects in contextual studies.  
+[https://doi.org/10.1037/a0012869](https://doi.org/10.1037/a0012869)  
+
+# Authors
+
+- Valerii Dashuk
+- Binayak Timilsina
+- Martin Hecht
+- Steffen Zitzmann
+
+**Contact:**  
+vadashuk@gmail.com 
+binayak.timilsina001@gmail.com
+martin.hecht@hsu-hh.de
+steffen.zitzmann@medicalschool-hamburg.de
+

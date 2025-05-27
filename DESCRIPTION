@@ -1,0 +1,34 @@
+Package: MultiLevelOptimalBayes
+Type: Package
+Title: Regularized Bayesian Estimator for Two-Level Latent Variable
+        Models
+Version: 0.0.1.5
+Authors@R: c(person("Valerii", "Dashuk", role = c("aut", "cre"), email = "vadashuk@gmail.com"),
+	person("Binayak", "Timilsina", role = "aut", email = "binayak.timilsina001@gmail.com"),
+	person("Martin", "Hecht", role = "aut", email = "martin.hecht@hsu-hh.de"),
+	person("Steffen", "Zitzmann", role = "aut", email = "steffen.zitzmann@medicalschool-hamburg.de")
+	)
+Author: Valerii Dashuk [aut, cre], Binayak Timilsina [aut], Martin Hecht [aut], Steffen Zitzmann [aut]
+Maintainer: Valerii Dashuk <vadashuk@gmail.com>
+Description: Implements a regularized Bayesian estimator that optimizes the estimation
+ of between-group coefficients for multilevel latent variable models by minimizing
+ mean squared error (MSE) and balancing variance and bias. The package provides more reliable
+ estimates in scenarios with limited data, offering a robust solution for accurate
+ parameter estimation in two-level latent variable models. It is designed for
+ researchers in psychology, education, and related fields who face challenges in
+ estimating between-group effects under small sample sizes and low intraclass
+ correlation coefficients. Dashuk et al. (2024) <doi:10.13140/RG.2.2.18148.39048>
+ derived the optimal regularized Bayesian estimator;
+ Dashuk et al. (2024) <doi:10.13140/RG.2.2.34350.01604> extended it to 
+ the multivariate case; and Luedtke et al. (2008) <doi:10.1037/a0012869>
+ formalized the two-level latent variable framework.
+Imports: pracma
+License: GPL-3
+Depends: R (>= 4.1.0)
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+Suggests: knitr, rmarkdown, testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+NeedsCompilation: no
+Packaged: 2025-05-27 22:27:25 UTC; valerii.dashuk

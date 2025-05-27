@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Introduction to MultiLevelOptimalBayes</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Introduction to MultiLevelOptimalBayes</h1>
+
+
+
+<div id="overview" class="section level1">
+<h1>Overview</h1>
+<p><strong>MultiLevelOptimalBayes (MLOB)</strong> is designed for
+estimating two-level latent variable models, particularly in small
+sample settings. This is especially useful in psychology, education, and
+other fields with hierarchical or nested data structures. We present the
+R package MultiLevelOptimalBayes (MLOB) for estimating between-group
+effects in multilevel latent variable models. MLOB employs a regularised
+Bayesian estimator devised by Dashuk, Hecht, Lüdtke, Robitzsch, and
+Zitzmann (2024), which was subsequently enhanced for additional
+covariates by the same authors in 2025. This estimator chooses prior
+parameters to minimise the mean squared error (MSE) of the between-group
+effect by effectively balancing bias and variance. The regularised
+Bayesian estimator provides MSE-optimal estimations due to the
+mean-variance tradeoff, especially in scenarios of small sample sizes
+and poor intraclass correlation (ICC). The MLOB software supports
+imbalanced group sizes through integrated data-balancing methods and
+offers comprehensive inference, including point estimates, standard
+errors, p-values, and confidence intervals for both primary regressors
+and covariates. To gain comprehensive understanding, we initially
+examine the theoretical underpinnings of the regularised Bayesian
+estimator (Dashuk et al. 2024, 2025), followed by a discussion of its
+implementation in MLOB, namely the core function mlob(). We illustrate
+the application of mlob() using real datasets. Consequently, we provide
+researchers in psychology, education, and related disciplines a robust,
+user-friendly instrument for dependable multilevel latent variable
+estimation, particularly in contexts characterised by small sample sizes
+and low ICCs.</p>
+<p>The core function <code>mlob()</code> estimates the between-group
+coefficient (<code>beta_b</code>) using a regularized Bayesian approach,
+and applies a data balancing procedure if the groups are unbalanced.</p>
+<div id="key-features" class="section level2">
+<h2>Key Features</h2>
+<ul>
+<li>✅ Suitable for small-sample, multilevel data</li>
+<li>✅ Performs regularized Bayesian estimation</li>
+<li>✅ Automatically balances data if necessary</li>
+<li>✅ Optional jackknife resampling for standard errors</li>
+<li>✅ Provides comparison with unregularized ML estimates</li>
+</ul>
+</div>
+</div>
+<div id="function-usage" class="section level1">
+<h1>Function Usage</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">mlob</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  formula,</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  data,</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  group,</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="at">balancing.limit =</span> <span class="fl">0.2</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">conf.level =</span> <span class="fl">0.95</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">jackknife =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">punish.coeff =</span> <span class="dv">2</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  ...</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>)</span></code></pre></div>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>formula</code>: A formula (e.g., <code>Y ~ X + C</code>) where
+Y is the outcome, X is the context variable of interest, and C
+represents covariates.</li>
+<li><code>data</code>: A data.frame containing all variables in the
+formula and the grouping variable.</li>
+<li><code>group</code>: A string naming the grouping variable.</li>
+<li><code>balancing.limit</code>: Proportion (0–1) of the dataset that
+can be removed to balance group sizes. Default is 0.2.</li>
+<li><code>conf.level</code>: Confidence level for confidence intervals.
+Default is 0.95 (95% CI).</li>
+<li><code>jackknife</code>: Logical. If TRUE, standard errors and CIs
+are computed via jackknife resampling. Default is FALSE.</li>
+<li><code>punish.coeff</code>: Multiplier for penalizing removal of
+entire groups during balancing. Higher values discourage full-group
+deletions.</li>
+</ul>
+<p><strong>Balancing Procedure:</strong> The mlob() function also
+verifies whether the data is balanced, that is each group consist of
+exactly the same number of individuals. If the data is unbalanced, the
+balancing procedure comes into effect and identifies the optimal number
+of individuals and groups to delete based on the punishment coefficient.
+If the amount of data to be deleted is more than the threshold
+(balancing.limit), the regularized Bayesian estimator is not calculated
+and mlob() produces an error. This forces the user to increase the
+balancing limit manually and warns that the results should be
+interpreted with caution. # Examples</p>
+<div id="example-1-iris-dataset" class="section level2">
+<h2>Example 1: Iris Dataset</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>result_iris <span class="ot">&lt;-</span> <span class="fu">mlob</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  Sepal.Length <span class="sc">~</span> Sepal.Width <span class="sc">+</span> Petal.Length,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">data =</span> iris,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">group =</span> <span class="st">&quot;Species&quot;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">conf.level =</span> <span class="fl">0.99</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">jackknife =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="fu">summary</span>(result_iris)</span></code></pre></div>
+</div>
+<div id="example-2-slightly-unbalanced-chickweight-dataset" class="section level2">
+<h2>Example 2: Slightly Unbalanced ChickWeight Dataset</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>result_chick <span class="ot">&lt;-</span> <span class="fu">mlob</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  weight <span class="sc">~</span> Diet,</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">data =</span> ChickWeight,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">group =</span> <span class="st">&quot;Time&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">punish.coeff =</span> <span class="fl">1.5</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">jackknife =</span> <span class="cn">FALSE</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>)</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="fu">print</span>(result_chick)</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="fu">summary</span>(result_chick)</span></code></pre></div>
+<p>** Interperation of the results for Chickenweight Dataset **</p>
+<p>Estimated beta_b and additional covariates effects, denoted as
+gamma_Diet3 and gamma_Diet4, are included in the end result table. We
+did not incorporate any additional covariates into the mlob() formula.
+However, due to the fact that Diet is a four-level factor, mlob()
+considers Diet 1 to be the primary regressor (X), excludes Diet 2 from
+the design matrix to prevent multicollinearity, and reports the
+remaining levels as gamma_Diet3 and gamma_Diet4, using Diet 2 as the
+reference. The results of the estimation indicate a substantial
+distinction between the regularised Bayesian estimator (first table) and
+the ML estimator (second table). Beta_b’s regularised Bayesian estimator
+is 5.108, with a statistically significant p-value of 0.0139. This
+implies that the average weight of chicks on Diet 1 is approximately 5g
+more than that of chicks on Diet 2 at each time point. In contrast, the
+ML estimate of the between-group effect beta_b is significantly larger
+(13.993) but not statistically significant (p value of 0.3910),
+demonstrating how standard ML can overstate the group-level effect when
+data is scarce. The positive estimate of gamma_Diet3 is 41.69 and is
+highly significant for both estimators (p = 0.0048 in
+MultiLevelOptimalBayes (MLOB)). This suggests that chicks on Diet 3 have
+a significant increase in weight in comparison to the baseline group.
+Gamma_Diet4 has an estimate of 29.64, but its p-value of 0.0504 is
+marginally significant at the 5% level. This implies that Diet 4 has a
+positive impact on weight; however, the magnitude of this effect is less
+significant than that of Diet 3.</p>
+</div>
+<div id="example-3-highly-unbalanced-mtcars-dataset" class="section level2">
+<h2>Example 3: Highly Unbalanced mtcars Dataset</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>result_mtcars <span class="ot">&lt;-</span> <span class="fu">mlob</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  mpg <span class="sc">~</span> hp <span class="sc">+</span> wt <span class="sc">+</span> am <span class="sc">+</span> hp<span class="sc">:</span>wt <span class="sc">+</span> hp<span class="sc">:</span>am,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">data =</span> mtcars,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">group =</span> <span class="st">&quot;cyl&quot;</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">balancing.limit =</span> <span class="fl">0.35</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>)</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="fu">summary</span>(result_mtcars)</span></code></pre></div>
+</div>
+</div>
+<div id="output" class="section level1">
+<h1>Output</h1>
+<p>The output is an object of class <code>mlob_result</code>, which
+contains:</p>
+<ul>
+<li>Estimated coefficients (<code>beta_b</code> and gamma values)</li>
+<li>Standard errors and confidence intervals</li>
+<li>Unregularized ML estimates for comparison</li>
+<li>Information about the data balancing procedure (if used)</li>
+</ul>
+</div>
+<div id="limitations" class="section level1">
+<h1>Limitations</h1>
+<p>While <code>MultiLevelOptimalBayes</code> provides a robust solution
+for regularized estimation in two-level models, users should be aware of
+the following limitations:</p>
+<ul>
+<li><p><strong>Local Grid Search</strong>:<br />
+The optimization is restricted to a local 5σ region around the ML
+estimate. Although this region captures the true MSE minimum with high
+probability (≥ 0.999 for J = 5), it does not guarantee identification of
+the global minimum.</p></li>
+<li><p><strong>Assumption of Equal Group Sizes</strong>:<br />
+The estimator assumes equal group sizes to simplify the model. While
+averaging group sizes is a proposed solution, the method does not yet
+handle unbalanced group sizes natively, but find the optimal reduction
+to the balanced size.</p></li>
+<li><p><strong>Jackknife Computational Cost</strong>:<br />
+Jackknife resampling improves interval coverage in small samples. Note
+that it may be computationally demanding for larger samples.</p></li>
+<li><p><strong>Limited Model Scope</strong>:<br />
+Currently, MLOB only handles two-level models with continuous outcomes.
+Extensions to support generalized linear mixed models, three- and
+more-level structures, or multivariate outcomes are not yet
+available.</p></li>
+</ul>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<p>Dashuk, V., Hecht, M., Luedtke, O., Robitzsch, A., &amp; Zitzmann, S.
+(2024).<br />
+An Optimally Regularized Estimator of Multilevel Latent Variable Models,
+with Improved MSE Performance.<br />
+<a href="https://doi.org/10.13140/RG.2.2.18148.39048">https://doi.org/10.13140/RG.2.2.18148.39048</a></p>
+<p>Luedtke, O., Marsh, H. W., Robitzsch, A., et al. (2008).<br />
+The multilevel latent covariate model: A new, more reliable approach to
+group-level effects in contextual studies.<br />
+<a href="https://doi.org/10.1037/a0012869">https://doi.org/10.1037/a0012869</a></p>
+</div>
+<div id="authors" class="section level1">
+<h1>Authors</h1>
+<ul>
+<li>Valerii Dashuk</li>
+<li>Binayak Timilsina</li>
+<li>Martin Hecht</li>
+<li>Steffen Zitzmann</li>
+</ul>
+<p><strong>Contact:</strong><br />
+<a href="mailto:vadashuk@gmail.com" class="email">vadashuk@gmail.com</a>
+<a href="mailto:binayak.timilsina001@gmail.com" class="email">binayak.timilsina001@gmail.com</a> <a href="mailto:martin.hecht@hsu-hh.de" class="email">martin.hecht@hsu-hh.de</a> <a href="mailto:steffen.zitzmann@medicalschool-hamburg.de" class="email">steffen.zitzmann@medicalschool-hamburg.de</a></p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
